@@ -1,0 +1,17 @@
+
+services:
+  db:
+    image: postgres:16
+    container_name: rps_postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: rps_db
+      POSTGRES_USER: rps_user
+      POSTGRES_PASSWORD: rps_pass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
