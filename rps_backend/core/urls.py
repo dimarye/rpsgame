@@ -27,7 +27,8 @@ urlpatterns = [
     path('api/', include([
         # Authentication endpoints
         path('', include('accounts.urls')),
-        # Add other app URLs here
+        # Game endpoints
+        path('', include('game.urls')),
     ])),
 ]
 
