@@ -1,0 +1,39 @@
+/* Disable CSS validation for this file */
+/* stylelint-disable */
+/* This file uses Tailwind CSS directives - validation is not needed */
+
+/*! tailwindcss v3.4.1 | MIT License | https://tailwindcss.com */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Base styles */
+body {
+  background-color: #f9fafb;
+  color: #111827;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Custom scrollbar */
+.scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #9ca3af #f3f4f6;
+}
+
+.scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background-color: #f3f4f6;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background-color: #9ca3af;
+  border-radius: 9999px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #6b7280;
+}
