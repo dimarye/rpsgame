@@ -1,9 +1,9 @@
 from django.db import models
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
 
 from .models import Match, Move
 
@@ -58,9 +58,12 @@ class MatchListView(generics.ListCreateAPIView):
         return context
     
     def get_queryset(self):
+        # Show all matches that are waiting for a second player
+        # or where the current user is a player
         return Match.objects.filter(
-            models.Q(player1=self.request.user) | 
-            models.Q(player2=self.request.user)
+            models.Q(status=Match.Status.PENDING) |  # Show all pending matches
+            models.Q(player1=self.request.user) |    # Or where user is player1
+            models.Q(player2=self.request.user)      # Or where user is player2
         ).order_by('-created_at')
     
     def create(self, request, *args, **kwargs):
@@ -131,13 +134,71 @@ class MatchDetailView(generics.RetrieveAPIView):
         return obj
 
 
+class JoinMatchView(APIView):
+    """
+    API endpoint for joining a match.
+    Allows a user to join an existing match that has an available slot.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        match = get_object_or_404(Match, pk=pk)
+        user = request.user
+        
+        # Check if user is already in the match
+        if match.player1 == user or match.player2 == user:
+            return Response(
+                {"detail": "You are already in this match"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Prevent joining your own match
+        if match.player1 == user or (match.player2 and match.player2 == user):
+            return Response(
+                {"detail": "You cannot join your own match"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Check if there's an available slot
+        if match.player1 and match.player2:
+            return Response(
+                {"detail": "Match is already full"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Check if match is in pending status
+        if match.status != Match.Status.PENDING:
+            return Response(
+                {"detail": "This match is not available for joining"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Join the match
+        if not match.player1:
+            match.player1 = user
+        else:
+            match.player2 = user
+        
+        # Update match status if both players have joined
+        if match.player1 and match.player2:
+            match.status = Match.Status.ACTIVE
+            
+        match.save(update_fields=['player1', 'player2', 'status', 'updated_at'])
+        
+        # Notify both players via WebSocket (if implemented)
+        # You would typically call a WebSocket consumer here to notify both players
+        
+        serializer = MatchSerializer(match, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class SubmitMoveView(APIView):
     """
     API endpoint for submitting moves in a match.
     Handles move validation, turn management, and game state updates.
     """
     permission_classes = [IsAuthenticated]
-    
+
     def post(self, request, pk):
         """
         Submit a move for the specified match.
