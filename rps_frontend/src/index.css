@@ -2,16 +2,229 @@
 /* stylelint-disable */
 /* This file uses Tailwind CSS directives - validation is not needed */
 
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Space+Grotesk:wght@400;500&display=swap');
 /*! tailwindcss v3.4.1 | MIT License | https://tailwindcss.com */
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+/* Import custom animations */
+@import './styles/animations.css';
+
+:root {
+  --sketch-red: #d65757;
+  --sketch-blue: #3f6fd7;
+  --sketch-ink: #2a2a2a;
+  --sketch-paper: #faf9f5;
+  --sketch-accent: #f2a65a;
+  --sketch-shadow: rgba(0, 0, 0, 0.08);
+}
+
 /* Base styles */
 body {
-  background-color: #f9fafb;
-  color: #111827;
-  font-family: 'Inter', sans-serif;
+  background-color: var(--sketch-paper);
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 36px,
+      rgba(63, 111, 215, 0.08) 37px
+    ),
+    linear-gradient(120deg, rgba(242, 166, 90, 0.05), rgba(214, 87, 87, 0.04));
+  color: var(--sketch-ink);
+  font-family: 'Patrick Hand', 'Space Grotesk', 'Inter', sans-serif;
+  min-height: 100vh;
+}
+
+.sketch-paper {
+  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.8), transparent 55%) var(--sketch-paper);
+  border: 2px solid var(--sketch-ink);
+  border-radius: 30px;
+  box-shadow: 6px 8px 0 var(--sketch-ink), 12px 12px 0 rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.sketch-paper::before,
+.sketch-paper::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  opacity: 0.25;
+}
+
+.sketch-paper::before {
+  width: 160px;
+  height: 160px;
+  left: 24px;
+  top: 24px;
+  background-image: radial-gradient(circle, transparent 60%, var(--sketch-ink) 61%, transparent 62%),
+    linear-gradient(135deg, var(--sketch-accent) 0 20%, transparent 20%);
+}
+
+.sketch-paper::after {
+  width: 200px;
+  height: 200px;
+  right: -50px;
+  bottom: -30px;
+  background-image: radial-gradient(var(--sketch-blue) 20%, transparent 22%),
+    linear-gradient(45deg, transparent 45%, var(--sketch-blue) 45% 55%, transparent 55%);
+}
+
+.sketch-outline {
+  border: 2px solid var(--sketch-ink);
+  border-radius: 20px;
+  box-shadow: 3px 4px 0 var(--sketch-ink);
+}
+
+.sketch-shadow {
+  position: relative;
+}
+
+.sketch-shadow::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: inherit;
+  border: 1px dashed rgba(42, 42, 42, 0.3);
+  pointer-events: none;
+}
+
+.sketch-hatch {
+  background-image: repeating-linear-gradient(135deg, transparent, transparent 6px, rgba(42, 42, 42, 0.15) 6px, rgba(42, 42, 42, 0.15) 10px);
+}
+
+.gesture-card {
+  border: 2px solid var(--sketch-ink);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.9);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gesture-card::after {
+  content: '';
+  position: absolute;
+  inset: 12px 16px;
+  border-radius: 18px;
+  border: 1px dashed rgba(42, 42, 42, 0.25);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.gesture-card:hover::after {
+  opacity: 1;
+}
+
+.gesture-shadow {
+  height: 12px;
+  width: 70%;
+  margin: 8px auto 0;
+  background: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.25), transparent 70%);
+  opacity: 0.4;
+}
+
+.sketch-wobble:hover {
+  animation: wobble 0.5s ease-in-out infinite;
+}
+
+@keyframes wobble {
+  0% { transform: rotate(0deg) translateY(0); }
+  25% { transform: rotate(-1deg) translateY(-1px); }
+  50% { transform: rotate(1.2deg) translateY(1px); }
+  75% { transform: rotate(-0.6deg) translateY(-1px); }
+  100% { transform: rotate(0deg) translateY(0); }
+}
+
+@keyframes gestureLaunch {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-8px) scale(1.05); }
+}
+
+@keyframes gestureImpact {
+  0% { transform: scale(1) translateX(0); }
+  100% { transform: scale(1.1) translateX(-8px); }
+}
+
+@keyframes burst {
+  0% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+  50% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.6) rotate(15deg); }
+}
+
+.hp-bar {
+  height: 22px;
+  border: 2px solid var(--sketch-ink);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.7);
+  position: relative;
+  overflow: hidden;
+}
+
+.hp-fill {
+  height: 100%;
+  clip-path: polygon(0 0, 98% 0, 100% 50%, 98% 100%, 0 100%);
+  transition: width 0.35s ease;
+  background-image: linear-gradient(120deg, rgba(255, 255, 255, 0.2), transparent 30%);
+}
+
+.hp-fill.player {
+  background-color: rgba(214, 87, 87, 0.8);
+}
+
+.hp-fill.bot {
+  background-color: rgba(63, 111, 215, 0.8);
+}
+
+.vs-doodle {
+  font-size: clamp(2.5rem, 4vw, 4.5rem);
+  font-weight: 700;
+  color: var(--sketch-ink);
+  text-shadow: -2px 2px 0 rgba(255, 255, 255, 0.6);
+  position: relative;
+}
+
+.vs-doodle::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border: 2px dashed rgba(42, 42, 42, 0.4);
+  border-radius: 40% 60% 55% 45%;
+  transform: rotate(-3deg);
+}
+
+.impact-burst {
+  width: 80px;
+  height: 80px;
+  border: 2px solid var(--sketch-ink);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: burst 0.4s ease forwards;
+  background: radial-gradient(circle, rgba(242, 166, 90, 0.8), transparent 70%);
+  pointer-events: none;
+}
+
+.gesture-flight {
+  animation: gestureLaunch 0.25s ease forwards;
+}
+
+.gesture-impact {
+  animation: gestureImpact 0.25s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sketch-wobble,
+  .gesture-flight,
+  .gesture-impact,
+  .impact-burst {
+    animation: none !important;
+    transform: none !important;
+  }
 }
 
 /* Custom scrollbar */

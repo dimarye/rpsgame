@@ -1,0 +1,389 @@
+/* Smooth Animations and Transitions for RPS Game */
+
+/* Base Animation Classes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+  }
+}
+
+@keyframes countdown {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40%, 43% {
+    transform: translateY(-10px);
+  }
+  70% {
+    transform: translateY(-5px);
+  }
+  90% {
+    transform: translateY(-2px);
+  }
+}
+
+/* Utility Classes */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.animate-countdown {
+  animation: countdown 1s ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+.animate-bounce {
+  animation: bounce 1s ease-in-out;
+}
+
+/* Transition Classes */
+.transition-all {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-smooth {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-fast {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hover Effects */
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+}
+
+/* Button Animation Classes */
+.btn-animate {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-animate::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-animate:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-animate:active {
+  transform: scale(0.98);
+}
+
+/* Loading Animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Success/Error Animations */
+@keyframes checkmark {
+  0% {
+    stroke-dashoffset: 50;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes crossmark {
+  0% {
+    stroke-dashoffset: 50;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-checkmark {
+  animation: checkmark 0.5s ease-in-out forwards;
+}
+
+.animate-crossmark {
+  animation: crossmark 0.5s ease-in-out forwards;
+}
+
+/* Move Selection Animations */
+.move-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.move-card:hover:not(.disabled) {
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.move-card.selected {
+  transform: scale(1.1);
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.5);
+  border-color: rgb(34, 197, 94);
+}
+
+.move-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: scale(0.95);
+}
+
+.move-card.winner {
+  animation: bounce 1s ease-in-out, glow 2s ease-in-out infinite;
+}
+
+.move-card.loser {
+  opacity: 0.6;
+  transform: scale(0.9);
+}
+
+/* Timer Animations */
+.timer-urgent {
+  animation: countdown 1s ease-in-out infinite, pulse 1s ease-in-out infinite;
+  color: #ef4444;
+}
+
+.timer-warning {
+  animation: pulse 2s ease-in-out infinite;
+  color: #f59e0b;
+}
+
+.timer-normal {
+  transition: color 0.3s ease;
+}
+
+/* Result Animations */
+.result-card {
+  animation: slideUp 0.5s ease-out, scaleIn 0.3s ease-out;
+}
+
+.result-winner {
+  animation: bounce 1s ease-in-out, glow 2s ease-in-out infinite;
+}
+
+.result-draw {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.result-loser {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Connection Status Animations */
+.status-online {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.status-offline {
+  animation: shake 0.5s ease-in-out;
+}
+
+.status-connecting {
+  animation: spin 1s linear infinite;
+}
+
+/* Toast Animations */
+.toast-enter {
+  animation: slideIn 0.3s ease-out;
+}
+
+.toast-exit {
+  animation: slideIn 0.3s ease-out reverse;
+}
+
+/* Match Flow Animations */
+.match-start {
+  animation: fadeIn 0.5s ease-out, scaleIn 0.3s ease-out;
+}
+
+.round-transition {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.match-end {
+  animation: scaleIn 0.5s ease-out, glow 3s ease-in-out infinite;
+}
+
+/* Loading States */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Responsive Animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark Mode Animation Adjustments */
+@media (prefers-color-scheme: dark) {
+  .hover-lift:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+  
+  .move-card.winner {
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.3);
+  }
+  
+  .animate-glow {
+    animation: glow-dark 2s ease-in-out infinite;
+  }
+}
+
+@keyframes glow-dark {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+  }
+}

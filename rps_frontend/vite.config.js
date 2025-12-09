@@ -14,20 +14,23 @@ export default defineConfig({
       protocol: 'ws',
       host: 'localhost',
     },
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/api/, '')
-      },
-      // Handle WebSocket connections
-      '/ws': {
-        target: 'ws://localhost:8000',
-        ws: true,
-        changeOrigin: true
-      }
-    }
+    // Force HTTP/1.1 to prevent Chrome HTTP/2 conflicts
+    https: false,
+    cors: true,
+    // Disable proxy to avoid conflicts with direct connections
+    // proxy: {
+    //   '/api': {
+    //     target: 'http://localhost:8000',
+    //     changeOrigin: true,
+    //     secure: false,
+    //     rewrite: (path) => path.replace(/^\/api/, '')
+    //   },
+    //   '/ws': {
+    //     target: 'ws://localhost:8000',
+    //     ws: true,
+    //     changeOrigin: true
+    //   }
+    // }
   },
   // SPA fallback configuration
   build: {
@@ -45,5 +48,21 @@ export default defineConfig({
   },
   define: {
     'process.env': {}
+  },
+  // Vitest configuration
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/tests/setup.js'],
+    css: true,
+    coverage: {
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'src/tests/',
+        '**/*.test.js',
+        '**/*.spec.js'
+      ]
+    }
   }
 });

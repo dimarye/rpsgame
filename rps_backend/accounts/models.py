@@ -24,6 +24,24 @@ class CustomUser(AbstractUser):
         help_text=_('URL to the user\'s avatar image')
     )
     
+    is_bot = models.BooleanField(
+        _('is bot'),
+        default=False,
+        help_text=_('Whether this user is a bot player')
+    )
+    
+    bot_difficulty = models.CharField(
+        _('bot difficulty'),
+        max_length=20,
+        choices=[
+            ('easy', 'Easy'),
+            ('medium', 'Medium'),
+            ('hard', 'Hard'),
+        ],
+        blank=True,
+        help_text=_('Bot difficulty level for AI players')
+    )
+    
     def __str__(self):
         return self.username
     

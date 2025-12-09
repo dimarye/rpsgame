@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Match, Move
+from .models import Match, Move, Round
 
 
 def determine_winner(move1, move2):
@@ -276,24 +276,47 @@ class SubmitMoveView(APIView):
             moves = list(match.moves.all())
             print(f"Total moves: {len(moves)}")
             
-            if len(moves) >= 2:  # Both players have moved
-                print("\n=== Determining Winner ===")
-                move1, move2 = moves[0], moves[1]
+            # Check if we have 2 moves for the current round
+            if len(moves) % 2 == 0 and len(moves) >= 2:
+                print("\n=== Processing Round ===")
+                # Get the last 2 moves (current round)
+                current_round_moves = moves[-2:]
+                move1, move2 = current_round_moves
+                round_number = len(moves) // 2
+                print(f"Round {round_number}")
                 print(f"Move 1: {move1.player.username} - {move1.choice}")
                 print(f"Move 2: {move2.player.username} - {move2.choice}")
                 
+                # Determine round winner
                 winner = determine_winner(move1, move2)
-                if winner is None:
-                    print("It's a draw!")
-                    match.status = Match.Status.FINISHED
-                    match.save(update_fields=['status', 'updated_at'])
+                
+                # Create round record
+                round_obj = Round.objects.create(
+                    match=match,
+                    round_number=round_number,
+                    move1=move1,
+                    move2=move2,
+                    is_draw=(winner is None)
+                )
+                
+                if winner is not None:
+                    round_obj.winner = winner.player
+                    round_obj.save()
+                    print(f"Round {round_number} winner: {winner.player.username}")
                 else:
-                    print(f"Winner: {winner.player.username}")
-                    match.winner = winner.player
+                    print(f"Round {round_number} is a draw")
+                
+                # Check if match is complete
+                if match.is_match_complete():
+                    match_winner = match.get_match_winner()
+                    if match_winner:
+                        match.winner = match_winner
+                        print(f"Match winner: {match_winner.username}")
                     match.status = Match.Status.FINISHED
                     match.save(update_fields=['winner', 'status', 'updated_at'])
-                
-                print(f"Match {match.id} is now {match.status}")
+                    print(f"Match {match.id} is now FINISHED")
+                else:
+                    print(f"Match continues - Player1 wins: {match.get_player_wins(match.player1)}, Player2 wins: {match.get_player_wins(match.player2) if match.player2 else 0}")
             
             # Return the updated match state
             serializer = MatchSerializer(match, context={'request': request})

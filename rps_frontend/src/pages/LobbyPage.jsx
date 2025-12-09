@@ -2,19 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
-import { createMatch, getMatches, joinMatch } from '../services/api';
+import { createMatch, getMatches, joinMatch, quickMatch } from '../services/api';
 
 const LobbyPage = () => {
   const [matches, setMatches] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [isQuickMatching, setIsQuickMatching] = useState(false);
+  const [botDifficulty, setBotDifficulty] = useState('medium');
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const fetchMatches = async () => {
     try {
       const data = await getMatches();
-      setMatches(data);
+      // Only update state if data actually changed to prevent unnecessary re-renders
+      setMatches(prevMatches => {
+        if (JSON.stringify(prevMatches) !== JSON.stringify(data)) {
+          return data;
+        }
+        return prevMatches;
+      });
     } catch (error) {
       console.error('Error fetching matches:', error);
       toast.error('Failed to load matches');
@@ -23,9 +31,45 @@ const LobbyPage = () => {
     }
   };
 
+  const handleQuickMatch = async () => {
+    if (!user) {
+      toast.error('You must be logged in to start a quick match');
+      navigate('/login');
+      return;
+    }
+
+    setIsQuickMatching(true);
+    try {
+      const payload = {
+        opponentType: 'bot',
+        difficulty: botDifficulty,
+      };
+      const result = await quickMatch(payload);
+      toast.success(
+        result.opponent_type === 'bot'
+          ? `Matched with a ${result.difficulty} bot!`
+          : 'Matched with a player!'
+      );
+      if (result.match_id) {
+        navigate(`/match/${result.match_id}`);
+      }
+    } catch (error) {
+      console.error('Error starting quick match:', error);
+      const message =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to start quick match';
+      toast.error(message);
+    } finally {
+      setIsQuickMatching(false);
+    }
+  };
+
   useEffect(() => {
     fetchMatches();
-    const interval = setInterval(fetchMatches, 5000); // Poll every 5 seconds
+    // Increase interval to reduce server load and prevent spam
+    const interval = setInterval(fetchMatches, 10000); // Poll every 10 seconds instead of 5
     return () => clearInterval(interval);
   }, []);
 
@@ -118,8 +162,41 @@ const LobbyPage = () => {
               disabled={isCreating}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isCreating ? 'Creating...' : 'Create New Match'}
+              {isCreating ? 'Creating...' : 'Create Human Match'}
             </button>
+          </div>
+          
+          <div className="px-4 py-5 sm:px-6 border-t border-gray-100 space-y-4">
+            <div className="flex flex-col md:flex-row md:items-end md:space-x-4 space-y-4 md:space-y-0">
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-gray-700 mb-1">Bot Quick Match</p>
+                <p className="text-xs text-gray-500 mb-2">
+                  Instantly start a match vs bot. Choose difficulty and jump in.
+                </p>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Bot Difficulty
+                </label>
+                <select
+                  value={botDifficulty}
+                  onChange={(e) => setBotDifficulty(e.target.value)}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                >
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+              </div>
+
+              <div className="flex-shrink-0">
+                <button
+                  onClick={handleQuickMatch}
+                  disabled={isQuickMatching}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isQuickMatching ? 'Matching...' : 'Quick Bot Match'}
+                </button>
+              </div>
+            </div>
           </div>
           
           <div className="border-t border-gray-200">
