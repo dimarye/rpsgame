@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { API_BASE_URL } from '../config/urls.js';
 
 // Helper function to get cookie by name
 function getCookie(name) {
@@ -8,7 +9,10 @@ function getCookie(name) {
   return null;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+// API Configuration
+export const WS_BASE_URL = "ws://localhost:8000/ws";
+
+const API_URL = API_BASE_URL;
 
 // Create axios instance with default config
 const api = axios.create({
@@ -243,8 +247,9 @@ export const getCurrentUser = async () => {
 };
 
 // Matches API
-export const createMatch = async () => {
-  const response = await api.post('/matches/');
+export const createMatch = async (winsNeeded = 3) => {
+  const payload = winsNeeded ? { wins_needed: winsNeeded } : {};
+  const response = await api.post('/matches/', payload);
   return response.data;
 };
 
@@ -317,6 +322,15 @@ export const joinMatch = async (matchId) => {
     
     throw error;
   }
+};
+
+export const quickMatch = async ({ opponentType = 'any', difficulty = 'medium' } = {}) => {
+  const payload = {
+    opponent_type: opponentType,
+    difficulty,
+  };
+  const response = await api.post('/matchmaking/quick/', payload);
+  return response.data;
 };
 
 // Game API

@@ -12,14 +12,13 @@ from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.urls import re_path
 
-# Import the custom JWT middleware
-from accounts.middleware import JWTAuthMiddleware
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
-
 # Initialize Django ASGI application early to ensure the AppRegistry
 # is populated before importing code that may import ORM models.
 django_asgi_app = get_asgi_application()
+
+# Import the custom JWT middleware after Django setup
+from accounts.middleware import JWTAuthMiddleware
 
 # Import consumers after Django setup
 from game.consumers import MatchConsumer

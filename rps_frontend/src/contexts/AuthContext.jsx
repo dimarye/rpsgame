@@ -13,8 +13,17 @@ export const AuthProvider = ({ children }) => {
       try {
         const token = localStorage.getItem('token');
         if (token) {
-          const userData = await getCurrentUser();
-          setUser(userData);
+          const result = await getCurrentUser();
+
+          if (result && result.success && result.user) {
+            // Store only the actual user object so user.id, user.username, etc. are available
+            setUser(result.user);
+          } else {
+            // If token is invalid or user fetch failed, clear auth state
+            setUser(null);
+            localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken');
+          }
         }
       } catch (error) {
         console.error('Auth error:', error);
@@ -128,7 +137,15 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    console.warn('useAuth called outside of AuthProvider. Returning fallback auth API.');
+    return {
+      user: null,
+      isAuthenticated: false,
+      loading: false,
+      login: async () => ({ success: false, error: 'Auth provider unavailable' }),
+      register: async () => ({ success: false, error: 'Auth provider unavailable' }),
+      logout: async () => {},
+    };
   }
   return context;
 };
